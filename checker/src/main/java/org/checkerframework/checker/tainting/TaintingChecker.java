@@ -1,7 +1,10 @@
 package org.checkerframework.checker.tainting;
 
 import org.checkerframework.common.basetype.BaseTypeChecker;
+import org.checkerframework.common.subtyping.SubtypingChecker;
 import org.checkerframework.framework.source.SuppressWarningsKeys;
+
+import java.util.Collection;
 
 /**
  * A type-checker plug-in for the Tainting type system qualifier that finds (and verifies the
