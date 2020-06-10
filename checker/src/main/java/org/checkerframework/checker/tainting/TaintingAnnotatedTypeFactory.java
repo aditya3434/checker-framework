@@ -15,16 +15,17 @@ import org.checkerframework.javacutil.TreeUtils;
 
 /** The type factory for the Tainting Checker. */
 public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
+
+    /** The @{@link Untainted} annotation. */
     protected AnnotationMirror TAINTED;
+    /** The @{@link Tainted} annotation. */
     protected AnnotationMirror UNTAINTED;
 
     /** Constructor function and building TAINTED, UNTAINTED annotation mirrors from classes. */
     public TaintingAnnotatedTypeFactory(BaseTypeChecker checker) {
         super(checker);
 
-        /** The @{@link Untainted} annotation. */
         UNTAINTED = AnnotationBuilder.fromClass(elements, Untainted.class);
-        /** The @{@link Tainted} annotation. */
         TAINTED = AnnotationBuilder.fromClass(elements, Tainted.class);
 
         this.postInit();
@@ -62,6 +63,7 @@ public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
      */
     protected class TaintingQualifierHierarchy extends GraphQualifierHierarchy {
 
+        /** Constructor function to create hierarchy from the bottom class. */
         public TaintingQualifierHierarchy(MultiGraphFactory factory) {
             super(factory, UNTAINTED);
         }
@@ -80,18 +82,18 @@ public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
             }
             // Ignore annotation values to ensure that annotation is in supertype map.
             if (AnnotationUtils.areSameByName(superAnno, UNTAINTED)) {
-                superAnno = UNTAINTED;
+                return false;
             }
             if (AnnotationUtils.areSameByName(subAnno, UNTAINTED)) {
-                subAnno = UNTAINTED;
+                String subVal = getUntaintedValue(subAnno);
+                String superVal = getTaintedValue(superAnno);
+                if (subVal.isEmpty() || superVal.isEmpty() || subVal.equals(superVal)) {
+                    return true;
+                } else {
+                    return false;
+                }
             }
-            if (AnnotationUtils.areSameByName(superAnno, TAINTED)) {
-                superAnno = TAINTED;
-            }
-            if (AnnotationUtils.areSameByName(subAnno, TAINTED)) {
-                subAnno = TAINTED;
-            }
-            return super.isSubtype(subAnno, superAnno);
+            return false;
         }
 
         /** Gets the value out of a untainted annotation. */
