@@ -26,4 +26,6 @@ import org.checkerframework.framework.qual.TypeUseLocation;
 @TargetLocations({TypeUseLocation.EXPLICIT_LOWER_BOUND, TypeUseLocation.EXPLICIT_UPPER_BOUND})
 @DefaultQualifierInHierarchy
 @SubtypeOf({})
-public @interface Tainted {}
+public @interface Tainted {
+    String value() default "";
+}

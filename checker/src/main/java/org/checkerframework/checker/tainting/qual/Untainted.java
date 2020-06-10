@@ -21,7 +21,7 @@ import org.checkerframework.framework.qual.TypeUseLocation;
 @Target({ElementType.TYPE_USE, ElementType.TYPE_PARAMETER})
 @SubtypeOf(Tainted.class)
 @QualifierForLiterals(LiteralKind.STRING)
-//@DefaultFor(TypeUseLocation.LOWER_BOUND)
+@DefaultFor(TypeUseLocation.LOWER_BOUND)
 public @interface Untainted {
-    String value();
+    String value() default "";
 }
