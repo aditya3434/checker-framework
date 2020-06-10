@@ -13,19 +13,24 @@ import org.checkerframework.javacutil.AnnotationBuilder;
 import org.checkerframework.javacutil.AnnotationUtils;
 import org.checkerframework.javacutil.TreeUtils;
 
+/** The type factory for the Tainting Checker. */
 public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
     protected AnnotationMirror TAINTED;
     protected AnnotationMirror UNTAINTED;
 
+    /** Constructor function and building TAINTED, UNTAINTED annotation mirrors from classes. */
     public TaintingAnnotatedTypeFactory(BaseTypeChecker checker) {
         super(checker);
 
+        /** The @{@link Untainted} annotation. */
         UNTAINTED = AnnotationBuilder.fromClass(elements, Untainted.class);
+        /** The @{@link Tainted} annotation. */
         TAINTED = AnnotationBuilder.fromClass(elements, Tainted.class);
 
         this.postInit();
     }
 
+    /** The method that returns the value element of a {@code @Untainted} annotation. */
     protected final ExecutableElement untaintedValueElement =
             TreeUtils.getMethod(
                     org.checkerframework.checker.tainting.qual.Untainted.class.getName(),
@@ -33,6 +38,7 @@ public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
                     0,
                     processingEnv);
 
+    /** The method that returns the value element of a {@code @Tainted} annotation. */
     protected final ExecutableElement taintedValueElement =
             TreeUtils.getMethod(
                     org.checkerframework.checker.tainting.qual.Tainted.class.getName(),
@@ -46,6 +52,14 @@ public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
         return new TaintingAnnotatedTypeFactory.TaintingQualifierHierarchy(factory);
     }
 
+    /**
+     * A custom qualifier hierarchy for the Tainting Checker. This makes the @Tainted annotation as
+     * the top default and the @Untainted annotation as the bottom annotation. So the hierarchy
+     * is @Tainted->@Tainted("xyz")->@Untainted("xyz")->@Untainted. For example,
+     * {@code @Tainted("SQL")} is a subtype of {@code @Tainted} and {@code @Untainted} is a subtype
+     * of {@code @Untainted("SQL")}. All regex annotations are subtypes of {@code @Regex}, which has
+     * a default value of 0.
+     */
     protected class TaintingQualifierHierarchy extends GraphQualifierHierarchy {
 
         public TaintingQualifierHierarchy(MultiGraphFactory factory) {
@@ -80,6 +94,7 @@ public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
             return super.isSubtype(subAnno, superAnno);
         }
 
+        /** Gets the value out of a untainted annotation. */
         private String getUntaintedValue(AnnotationMirror anno) {
             return (String)
                     AnnotationUtils.getElementValuesWithDefaults(anno)
@@ -87,6 +102,7 @@ public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
                             .getValue();
         }
 
+        /** Gets the value out of a tainted annotation. */
         private String getTaintedValue(AnnotationMirror anno) {
             return (String)
                     AnnotationUtils.getElementValuesWithDefaults(anno)
