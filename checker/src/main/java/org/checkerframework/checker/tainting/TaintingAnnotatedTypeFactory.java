@@ -57,12 +57,10 @@ public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
             if (AnnotationUtils.areSameByName(subAnno, UNTAINTED)
                     && AnnotationUtils.areSameByName(superAnno, UNTAINTED)) {
                 String rhsValue = getUntaintedValue(subAnno);
-                String lhsValue = getUntaintedValue(superAnno);
                 return rhsValue.equals("") || AnnotationUtils.areSame(superAnno, subAnno);
             }
             if (AnnotationUtils.areSameByName(subAnno, TAINTED)
                     && AnnotationUtils.areSameByName(superAnno, TAINTED)) {
-                String rhsValue = getTaintedValue(subAnno);
                 String lhsValue = getTaintedValue(superAnno);
                 return lhsValue.equals("") || AnnotationUtils.areSame(superAnno, subAnno);
             }
