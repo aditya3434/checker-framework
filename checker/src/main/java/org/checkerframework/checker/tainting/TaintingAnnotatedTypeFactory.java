@@ -21,7 +21,11 @@ public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
     /** The @{@link Tainted} annotation. */
     protected AnnotationMirror UNTAINTED;
 
-    /** Constructor function and building TAINTED, UNTAINTED annotation mirrors from classes. */
+    /**
+     * Constructor function and building TAINTED, UNTAINTED annotation mirrors from classes.
+     *
+     * @param checker the associated {@link TaintingChecker}
+     */
     public TaintingAnnotatedTypeFactory(BaseTypeChecker checker) {
         super(checker);
 
@@ -63,7 +67,11 @@ public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
      */
     protected class TaintingQualifierHierarchy extends GraphQualifierHierarchy {
 
-        /** Constructor function to create hierarchy from the bottom class. */
+        /**
+         * Constructor function to create hierarchy from the bottom class.
+         *
+         * @param factory of checker whose hierarchy must be created
+         */
         public TaintingQualifierHierarchy(MultiGraphFactory factory) {
             super(factory, UNTAINTED);
         }
@@ -98,7 +106,12 @@ public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
             return super.isSubtype(subAnno, superAnno);
         }
 
-        /** Gets the value out of a untainted annotation. */
+        /**
+         * Gets the value out of a untainted annotation.
+         *
+         * @param anno annotation mirror whose value needs to be found out
+         * @return the String parameter of the untainted annotation
+         */
         private String getUntaintedValue(AnnotationMirror anno) {
             return (String)
                     AnnotationUtils.getElementValuesWithDefaults(anno)
@@ -106,7 +119,12 @@ public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
                             .getValue();
         }
 
-        /** Gets the value out of a tainted annotation. */
+        /**
+         * Gets the value out of a tainted annotation.
+         *
+         * @param anno annotation mirror whose value needs to be found out
+         * @return the String parameter of the tainted annotation
+         */
         private String getTaintedValue(AnnotationMirror anno) {
             return (String)
                     AnnotationUtils.getElementValuesWithDefaults(anno)
