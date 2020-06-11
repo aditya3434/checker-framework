@@ -55,11 +55,11 @@ public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
 
     /**
      * A custom qualifier hierarchy for the Tainting Checker. This makes the @Tainted annotation as
-     * the top default and the @Untainted annotation as the bottom annotation. So the hierarchy
-     * is @Tainted->@Tainted("xyz")->@Untainted("xyz")->@Untainted. For example,
+     * the top default and the @Untainted annotation as the bottom annotation. {@code @Tainted} with
+     * a string argument will become a subtype of {@code @Tainted} whereas {@code @Untainted}
+     * becomes a subtype of {@code @Untainted} with a string argument. For example,
      * {@code @Tainted("SQL")} is a subtype of {@code @Tainted} and {@code @Untainted} is a subtype
-     * of {@code @Untainted("SQL")}. All regex annotations are subtypes of {@code @Regex}, which has
-     * a default value of 0.
+     * of {@code @Untainted("SQL")}.
      */
     protected class TaintingQualifierHierarchy extends GraphQualifierHierarchy {
 
@@ -81,10 +81,12 @@ public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
                 return lhsValue.equals("") || AnnotationUtils.areSame(superAnno, subAnno);
             }
             // Ignore annotation values to ensure that annotation is in supertype map.
-            if (AnnotationUtils.areSameByName(superAnno, UNTAINTED)) {
+            if (AnnotationUtils.areSameByName(superAnno, UNTAINTED)
+                    && AnnotationUtils.areSameByName(subAnno, TAINTED)) {
                 return false;
             }
-            if (AnnotationUtils.areSameByName(subAnno, UNTAINTED)) {
+            if (AnnotationUtils.areSameByName(subAnno, UNTAINTED)
+                    && AnnotationUtils.areSameByName(superAnno, TAINTED)) {
                 String subVal = getUntaintedValue(subAnno);
                 String superVal = getTaintedValue(superAnno);
                 if (subVal.isEmpty() || superVal.isEmpty() || subVal.equals(superVal)) {
@@ -93,7 +95,7 @@ public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
                     return false;
                 }
             }
-            return false;
+            return super.isSubtype(subAnno, superAnno);
         }
 
         /** Gets the value out of a untainted annotation. */
