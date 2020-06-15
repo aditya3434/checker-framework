@@ -1,6 +1,10 @@
 package org.checkerframework.checker.tainting;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ExecutableElement;
 import org.checkerframework.checker.tainting.qual.Tainted;
 import org.checkerframework.checker.tainting.qual.Untainted;
@@ -11,7 +15,6 @@ import org.checkerframework.framework.util.GraphQualifierHierarchy;
 import org.checkerframework.framework.util.MultiGraphQualifierHierarchy;
 import org.checkerframework.javacutil.AnnotationBuilder;
 import org.checkerframework.javacutil.AnnotationUtils;
-import org.checkerframework.javacutil.TreeUtils;
 
 /** The type factory for the Tainting Checker. */
 public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
@@ -34,22 +37,6 @@ public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
 
         this.postInit();
     }
-
-    /** The method that returns the value element of a {@code @Untainted} annotation. */
-    protected final ExecutableElement untaintedValueElement =
-            TreeUtils.getMethod(
-                    org.checkerframework.checker.tainting.qual.Untainted.class.getName(),
-                    "value",
-                    0,
-                    processingEnv);
-
-    /** The method that returns the value element of a {@code @Tainted} annotation. */
-    protected final ExecutableElement taintedValueElement =
-            TreeUtils.getMethod(
-                    org.checkerframework.checker.tainting.qual.Tainted.class.getName(),
-                    "value",
-                    0,
-                    processingEnv);
 
     @Override
     public QualifierHierarchy createQualifierHierarchy(
@@ -76,17 +63,37 @@ public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
             super(factory, UNTAINTED);
         }
 
+        private List<String> extractValues(AnnotationMirror anno) {
+            Map<? extends ExecutableElement, ? extends AnnotationValue> valMap =
+                    anno.getElementValues();
+
+            List<String> res;
+            if (valMap.isEmpty()) {
+                res = new ArrayList<>();
+            } else {
+                res = AnnotationUtils.getElementValueArray(anno, "value", String.class, true);
+            }
+            return res;
+        }
+
         @Override
         public boolean isSubtype(AnnotationMirror subAnno, AnnotationMirror superAnno) {
             if (AnnotationUtils.areSameByName(subAnno, UNTAINTED)
                     && AnnotationUtils.areSameByName(superAnno, UNTAINTED)) {
-                String rhsValue = getUntaintedValue(subAnno);
-                return rhsValue.equals("") || AnnotationUtils.areSame(superAnno, subAnno);
+
+                List<String> lhsValues = extractValues(superAnno);
+                List<String> rhsValues = extractValues(subAnno);
+
+                return rhsValues.isEmpty()
+                        || (!lhsValues.isEmpty() && rhsValues.containsAll(lhsValues));
             }
             if (AnnotationUtils.areSameByName(subAnno, TAINTED)
                     && AnnotationUtils.areSameByName(superAnno, TAINTED)) {
-                String lhsValue = getTaintedValue(superAnno);
-                return lhsValue.equals("") || AnnotationUtils.areSame(superAnno, subAnno);
+
+                List<String> lhsValues = extractValues(superAnno);
+                List<String> rhsValues = extractValues(subAnno);
+
+                return lhsValues.isEmpty() || rhsValues.containsAll(lhsValues);
             }
             // Ignore annotation values to ensure that annotation is in supertype map.
             if (AnnotationUtils.areSameByName(superAnno, UNTAINTED)
@@ -95,41 +102,15 @@ public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
             }
             if (AnnotationUtils.areSameByName(subAnno, UNTAINTED)
                     && AnnotationUtils.areSameByName(superAnno, TAINTED)) {
-                String subVal = getUntaintedValue(subAnno);
-                String superVal = getTaintedValue(superAnno);
-                if (subVal.isEmpty() || superVal.isEmpty() || subVal.equals(superVal)) {
-                    return true;
-                } else {
-                    return false;
-                }
+
+                List<String> lhsValues = extractValues(superAnno);
+                List<String> rhsValues = extractValues(subAnno);
+
+                return lhsValues.isEmpty()
+                        || rhsValues.isEmpty()
+                        || rhsValues.containsAll(lhsValues);
             }
             return super.isSubtype(subAnno, superAnno);
-        }
-
-        /**
-         * Gets the value out of a untainted annotation.
-         *
-         * @param anno annotation mirror whose value needs to be found out
-         * @return the String parameter of the untainted annotation
-         */
-        private String getUntaintedValue(AnnotationMirror anno) {
-            return (String)
-                    AnnotationUtils.getElementValuesWithDefaults(anno)
-                            .get(untaintedValueElement)
-                            .getValue();
-        }
-
-        /**
-         * Gets the value out of a tainted annotation.
-         *
-         * @param anno annotation mirror whose value needs to be found out
-         * @return the String parameter of the tainted annotation
-         */
-        private String getTaintedValue(AnnotationMirror anno) {
-            return (String)
-                    AnnotationUtils.getElementValuesWithDefaults(anno)
-                            .get(taintedValueElement)
-                            .getValue();
         }
     }
 }
