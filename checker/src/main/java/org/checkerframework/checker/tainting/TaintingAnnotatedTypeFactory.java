@@ -63,6 +63,12 @@ public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
             super(factory, UNTAINTED);
         }
 
+        /**
+         * Extracts the string array argument from the tainted/untainted annotation.
+         *
+         * @param anno of checker whose values need to be returned
+         * @return string list made from the array elements given as argument
+         */
         private List<String> extractValues(AnnotationMirror anno) {
             Map<? extends ExecutableElement, ? extends AnnotationValue> valMap =
                     anno.getElementValues();
