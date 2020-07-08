@@ -37,14 +37,14 @@ public class TaintingVisitor extends BaseTypeVisitor<BaseAnnotatedTypeFactory> {
      * @param tree of condition statement that needs to be checked
      */
     private void checkCondition(ExpressionTree tree) {
-        if (tree.getKind().asInterface().equals(BinaryTree.class)) {
+        if (tree.getKind().asInterface() == BinaryTree.class) {
             AnnotatedTypeMirror lhs =
                     atypeFactory.getAnnotatedType(((BinaryTree) tree).getLeftOperand());
             AnnotatedTypeMirror rhs =
                     atypeFactory.getAnnotatedType(((BinaryTree) tree).getRightOperand());
-            if ((lhs.hasAnnotation(Untainted.class)) ^ (rhs.hasAnnotation(Untainted.class))
-                    && (!lhs.getKind().equals(TypeKind.NULL))
-                    && (!rhs.getKind().equals(TypeKind.NULL))) {
+            if ((lhs.hasAnnotation(Untainted.class) ^ rhs.hasAnnotation(Untainted.class))
+                    && (lhs.getKind() != TypeKind.NULL)
+                    && (rhs.getKind() != TypeKind.NULL)) {
                 checker.reportError(tree, "condition.flow.unsafe", lhs, rhs);
             }
         }
