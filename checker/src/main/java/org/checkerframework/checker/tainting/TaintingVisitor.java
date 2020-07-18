@@ -67,8 +67,7 @@ public class TaintingVisitor extends BaseTypeVisitor<BaseAnnotatedTypeFactory> {
                     atypeFactory.getAnnotatedType(((BinaryTree) tree).getLeftOperand());
             AnnotatedTypeMirror rhs =
                     atypeFactory.getAnnotatedType(((BinaryTree) tree).getRightOperand());
-            if ((lhs.hasAnnotation(Untainted.class)
-                            || rhs.hasAnnotation(Untainted.class))
+            if ((lhs.hasAnnotation(Untainted.class) || rhs.hasAnnotation(Untainted.class))
                     && (lhs.getKind() != TypeKind.NULL)
                     && (rhs.getKind() != TypeKind.NULL)) {
                 checker.reportError(tree, "condition.flow.unsafe", lhs, rhs);
