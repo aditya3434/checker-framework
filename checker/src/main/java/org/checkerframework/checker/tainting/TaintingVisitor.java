@@ -14,6 +14,8 @@ import com.sun.source.tree.WhileLoopTree;
 import java.util.List;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.TypeKind;
+
+import org.checkerframework.checker.tainting.qual.Tainted;
 import org.checkerframework.checker.tainting.qual.Untainted;
 import org.checkerframework.common.basetype.BaseAnnotatedTypeFactory;
 import org.checkerframework.common.basetype.BaseTypeChecker;
@@ -52,24 +54,33 @@ public class TaintingVisitor extends BaseTypeVisitor<BaseAnnotatedTypeFactory> {
             ExpressionTree MethodSelect = ((MethodInvocationTree) tree).getMethodSelect();
             ExpressionTree object = TreeUtils.getReceiverTree(MethodSelect);
             AnnotatedTypeMirror type = atypeFactory.getAnnotatedType(object);
-            if (type.hasAnnotation(Untainted.class)) {
-                checker.reportError(tree, "method.invocation.flow.unsafe", object, type);
-            }
             List<? extends ExpressionTree> arguments = ((MethodInvocationTree) tree).getArguments();
-            for (ExpressionTree ExpTree : arguments) {
-                AnnotatedTypeMirror arg = atypeFactory.getAnnotatedType(ExpTree);
-                if (arg.hasAnnotation(Untainted.class)) {
-                    checker.reportError(tree, "method.invocation.flow.unsafe", ExpTree, arg);
-                    break;
+            if (type.hasAnnotation(Untainted.class)) {
+                for (ExpressionTree ExpTree : arguments) {
+                    AnnotatedTypeMirror arg = atypeFactory.getAnnotatedType(ExpTree);
+                    if (arg.hasAnnotation(Tainted.class)) {
+                        checker.reportError(tree, "method.invocation.flow.unsafe", ExpTree, arg);
+                        break;
+                    }
                 }
             }
+            else {
+                for (ExpressionTree ExpTree : arguments) {
+                    AnnotatedTypeMirror arg = atypeFactory.getAnnotatedType(ExpTree);
+                    if (arg.hasAnnotation(Untainted.class)) {
+                        checker.reportError(tree, "method.invocation.flow.unsafe", ExpTree, arg);
+                        break;
+                    }
+                }
+            }
+
         }
         if (tree.getKind().asInterface() == BinaryTree.class) {
             AnnotatedTypeMirror lhs =
                     atypeFactory.getAnnotatedType(((BinaryTree) tree).getLeftOperand());
             AnnotatedTypeMirror rhs =
                     atypeFactory.getAnnotatedType(((BinaryTree) tree).getRightOperand());
-            if ((lhs.hasAnnotation(Untainted.class) || rhs.hasAnnotation(Untainted.class))
+            if ((lhs.hasAnnotation(Untainted.class) ^ rhs.hasAnnotation(Untainted.class))
                     && (lhs.getKind() != TypeKind.NULL)
                     && (rhs.getKind() != TypeKind.NULL)) {
                 checker.reportError(tree, "condition.flow.unsafe", lhs, rhs);
