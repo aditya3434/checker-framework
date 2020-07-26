@@ -14,7 +14,6 @@ import com.sun.source.tree.WhileLoopTree;
 import java.util.List;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.TypeKind;
-
 import org.checkerframework.checker.tainting.qual.Tainted;
 import org.checkerframework.checker.tainting.qual.Untainted;
 import org.checkerframework.common.basetype.BaseAnnotatedTypeFactory;
@@ -63,8 +62,7 @@ public class TaintingVisitor extends BaseTypeVisitor<BaseAnnotatedTypeFactory> {
                         break;
                     }
                 }
-            }
-            else {
+            } else {
                 for (ExpressionTree ExpTree : arguments) {
                     AnnotatedTypeMirror arg = atypeFactory.getAnnotatedType(ExpTree);
                     if (arg.hasAnnotation(Untainted.class)) {
@@ -73,7 +71,6 @@ public class TaintingVisitor extends BaseTypeVisitor<BaseAnnotatedTypeFactory> {
                     }
                 }
             }
-
         }
         if (tree.getKind().asInterface() == BinaryTree.class) {
             AnnotatedTypeMirror lhs =
