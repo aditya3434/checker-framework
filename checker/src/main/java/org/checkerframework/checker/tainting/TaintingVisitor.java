@@ -49,6 +49,9 @@ public class TaintingVisitor extends BaseTypeVisitor<BaseAnnotatedTypeFactory> {
      * @param tree of condition statement that needs to be checked
      */
     private void checkCondition(ExpressionTree tree) {
+        if (!checker.hasOption("flow") || !checker.getBooleanOption("flow", true)) {
+            return;
+        }
         if (tree.getKind().asInterface() == MethodInvocationTree.class) {
             ExpressionTree MethodSelect = ((MethodInvocationTree) tree).getMethodSelect();
             ExpressionTree object = TreeUtils.getReceiverTree(MethodSelect);

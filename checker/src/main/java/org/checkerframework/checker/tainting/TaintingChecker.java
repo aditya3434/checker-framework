@@ -1,6 +1,7 @@
 package org.checkerframework.checker.tainting;
 
 import org.checkerframework.common.basetype.BaseTypeChecker;
+import org.checkerframework.framework.source.SupportedOptions;
 import org.checkerframework.framework.source.SuppressWarningsPrefix;
 
 /**
@@ -12,4 +13,5 @@ import org.checkerframework.framework.source.SuppressWarningsPrefix;
  * @checker_framework.manual #tainting-checker Tainting Checker
  */
 @SuppressWarningsPrefix({"untainted", "tainting"})
+@SupportedOptions("flow")
 public class TaintingChecker extends BaseTypeChecker {}
