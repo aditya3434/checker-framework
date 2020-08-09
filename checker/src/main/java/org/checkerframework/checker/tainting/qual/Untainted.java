@@ -23,5 +23,6 @@ import org.checkerframework.framework.qual.TypeUseLocation;
 @SubtypeOf(Tainted.class)
 @DefaultFor(TypeUseLocation.LOWER_BOUND)
 public @interface Untainted {
-    public String[] value() default "";
+    /** Data types for which the object is Untainted. */
+    String[] value() default "";
 }
