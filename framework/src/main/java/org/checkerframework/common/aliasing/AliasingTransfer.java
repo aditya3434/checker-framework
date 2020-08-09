@@ -3,7 +3,6 @@ package org.checkerframework.common.aliasing;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.Tree.Kind;
 import java.util.List;
-import java.util.Set;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
@@ -190,7 +189,6 @@ public class AliasingTransfer extends CFTransfer {
         Tree receiverTree = n.getTarget().getReceiver().getTree();
         if (receiverTree != null) {
             AnnotatedTypeMirror type = factory.getAnnotatedType(receiverTree);
-            Set<AnnotationMirror> x = type.getAnnotations();
             if (type.hasAnnotation(Linear.class)) {
                 FlowExpressions.Receiver receiver =
                         FlowExpressions.internalReprOf(

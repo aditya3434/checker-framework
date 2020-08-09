@@ -25,7 +25,6 @@ guieffect-checker.tex \
 units-checker.tex \
 signedness-checker.tex \
 aliasing-checker.tex \
-linear-checker.tex \
 purity-checker.tex \
 constant-value-checker.tex \
 returns-receiver-checker.tex \
