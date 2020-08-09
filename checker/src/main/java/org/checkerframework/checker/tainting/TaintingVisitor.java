@@ -6,10 +6,8 @@ import com.sun.source.tree.DoWhileLoopTree;
 import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.ForLoopTree;
 import com.sun.source.tree.IfTree;
-import com.sun.source.tree.InstanceOfTree;
 import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.SwitchTree;
-import com.sun.source.tree.Tree;
 import com.sun.source.tree.WhileLoopTree;
 import java.util.List;
 import javax.lang.model.element.ExecutableElement;
@@ -92,19 +90,6 @@ public class TaintingVisitor extends BaseTypeVisitor<BaseAnnotatedTypeFactory> {
     public Void visitIf(IfTree node, Void p) {
         checkCondition(TreeUtils.withoutParens(node.getCondition()));
         return super.visitIf(node, p);
-    }
-
-    @Override
-    public Void visitInstanceOf(InstanceOfTree node, Void p) {
-        if (node.getType().getKind() == Tree.Kind.ANNOTATED_TYPE) {
-            AnnotatedTypeMirror type = atypeFactory.getAnnotatedType(node.getType());
-            AnnotatedTypeMirror exp = atypeFactory.getAnnotatedType(node.getExpression());
-            if (atypeFactory.getTypeHierarchy().isSubtype(type, exp)
-                    && !type.getAnnotations().equals(exp.getAnnotations())) {
-                checker.reportWarning(node, "operand.instanceof.subtype", exp, type);
-            }
-        }
-        return super.visitInstanceOf(node, p);
     }
 
     @Override
