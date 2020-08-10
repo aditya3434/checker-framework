@@ -27,6 +27,11 @@ import org.checkerframework.framework.qual.TypeUseLocation;
 @DefaultQualifierInHierarchy
 @SubtypeOf({})
 public @interface Tainted {
-    /** Data types for which the object is Tainted. */
+    /**
+     * Method that gives the data types for which the object is tainted, or in other words, is
+     * unsafe to use.
+     *
+     * @return string array that contains the data types for which object is tainted
+     */
     String[] value() default "";
 }

@@ -23,6 +23,11 @@ import org.checkerframework.framework.qual.TypeUseLocation;
 @SubtypeOf(Tainted.class)
 @DefaultFor(TypeUseLocation.LOWER_BOUND)
 public @interface Untainted {
-    /** Data types for which the object is Untainted. */
+    /**
+     * Method that gives the data types for which the object is untainted, or in other words, is
+     * safe to use.
+     *
+     * @return string array that contains the data types for which object is untainted
+     */
     String[] value() default "";
 }
