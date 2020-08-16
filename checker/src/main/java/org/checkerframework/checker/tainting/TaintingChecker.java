@@ -13,5 +13,5 @@ import org.checkerframework.framework.source.SuppressWarningsPrefix;
  * @checker_framework.manual #tainting-checker Tainting Checker
  */
 @SuppressWarningsPrefix({"untainted", "tainting"})
-@SupportedOptions("flow")
+@SupportedOptions({"flow", "quals", "qualDirs"})
 public class TaintingChecker extends BaseTypeChecker {}

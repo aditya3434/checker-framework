@@ -1,8 +1,11 @@
 package org.checkerframework.checker.tainting;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ExecutableElement;
@@ -12,9 +15,11 @@ import org.checkerframework.common.basetype.BaseAnnotatedTypeFactory;
 import org.checkerframework.common.basetype.BaseTypeChecker;
 import org.checkerframework.framework.type.QualifierHierarchy;
 import org.checkerframework.framework.util.GraphQualifierHierarchy;
-import org.checkerframework.framework.util.MultiGraphQualifierHierarchy;
+import org.checkerframework.framework.util.MultiGraphQualifierHierarchy.MultiGraphFactory;
 import org.checkerframework.javacutil.AnnotationBuilder;
 import org.checkerframework.javacutil.AnnotationUtils;
+import org.checkerframework.javacutil.UserError;
+import org.plumelib.reflection.Signatures;
 
 /** The type factory for the Tainting Checker. */
 public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
@@ -39,9 +44,37 @@ public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
     }
 
     @Override
-    public QualifierHierarchy createQualifierHierarchy(
-            MultiGraphQualifierHierarchy.MultiGraphFactory factory) {
-        return new TaintingAnnotatedTypeFactory.TaintingQualifierHierarchy(factory);
+    protected Set<Class<? extends Annotation>> createSupportedTypeQualifiers() {
+
+        loader = createAnnotationClassLoader();
+        Set<Class<? extends Annotation>> qualSet = new LinkedHashSet<>();
+
+        String qualNames = checker.getOption("quals");
+        String qualDirectories = checker.getOption("qualDirs");
+
+        if (qualNames == null && qualDirectories == null) {
+            return super.createSupportedTypeQualifiers();
+        }
+        if (qualNames != null) {
+            for (String qualName : qualNames.split(",")) {
+                if (!Signatures.isBinaryName(qualName)) {
+                    throw new UserError(
+                            "Malformed qualifier \"%s\" in -Aquals=%s", qualName, qualNames);
+                }
+                qualSet.add(loader.loadExternalAnnotationClass(qualName));
+            }
+        }
+        if (qualDirectories != null) {
+            for (String dirName : qualDirectories.split(":")) {
+                qualSet.addAll(loader.loadExternalAnnotationClassesFromDirectory(dirName));
+            }
+        }
+        return qualSet;
+    }
+
+    @Override
+    public QualifierHierarchy createQualifierHierarchy(MultiGraphFactory factory) {
+        return new TaintingQualifierHierarchy(factory);
     }
 
     /**
