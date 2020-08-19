@@ -42,12 +42,14 @@ public class TaintingVisitor extends BaseTypeVisitor<BaseAnnotatedTypeFactory> {
             AnnotatedExecutableType constructorType, ExecutableElement constructorElement) {}
 
     /**
-     * Checks whether indirect information flow cannot take place in given condition check.
+     * Checks if the boolean comparison or method invocation in the condition expression tree
+     * involves comparing a {@code @Tainted} object with an {@code @Untainted} one. This check is
+     * done only when the {@code -Aflag} option is enabled.
      *
      * @param tree of condition statement that needs to be checked
      */
     private void checkCondition(ExpressionTree tree) {
-        if (!checker.hasOption("flow") || !checker.getBooleanOption("flow", true)) {
+        if (!checker.hasOption("flow")) {
             return;
         }
         if (tree.getKind().asInterface() == MethodInvocationTree.class) {
@@ -78,6 +80,10 @@ public class TaintingVisitor extends BaseTypeVisitor<BaseAnnotatedTypeFactory> {
                     atypeFactory.getAnnotatedType(((BinaryTree) tree).getLeftOperand());
             AnnotatedTypeMirror rhs =
                     atypeFactory.getAnnotatedType(((BinaryTree) tree).getRightOperand());
+
+            // Indirect infotmation flow will take place when the lhs and rhs have different
+            // annotations
+            // Hence, we use the XOR operator '^' here.
             if ((lhs.hasAnnotation(Untainted.class) ^ rhs.hasAnnotation(Untainted.class))
                     && (lhs.getKind() != TypeKind.NULL)
                     && (rhs.getKind() != TypeKind.NULL)) {

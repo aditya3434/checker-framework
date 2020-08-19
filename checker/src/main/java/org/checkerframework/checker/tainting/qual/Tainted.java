@@ -7,8 +7,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.checkerframework.framework.qual.DefaultQualifierInHierarchy;
 import org.checkerframework.framework.qual.SubtypeOf;
-import org.checkerframework.framework.qual.TargetLocations;
-import org.checkerframework.framework.qual.TypeUseLocation;
 
 /**
  * Denotes a possibly-tainted value: at run time, the value might be tainted or might be untainted.
@@ -23,15 +21,15 @@ import org.checkerframework.framework.qual.TypeUseLocation;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE_USE, ElementType.TYPE_PARAMETER})
-@TargetLocations({TypeUseLocation.EXPLICIT_LOWER_BOUND, TypeUseLocation.EXPLICIT_UPPER_BOUND})
 @DefaultQualifierInHierarchy
 @SubtypeOf({})
 public @interface Tainted {
     /**
-     * Method that gives the data types for which the object is tainted, or in other words, is
-     * unsafe to use.
+     * Method that returns the string array argument of the {@code @Tainted} annotation. An empty
+     * string array argument signifies the universal set of all strings, which is the default value
+     * in this case.
      *
-     * @return string array that contains the data types for which object is tainted
+     * @return string array argument of the {@code @Tainted} annotation
      */
     String[] value() default "";
 }

@@ -78,12 +78,12 @@ public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
     }
 
     /**
-     * A custom qualifier hierarchy for the Tainting Checker. This makes the @Tainted annotation as
-     * the top default and the @Untainted annotation as the bottom annotation. {@code @Tainted} with
-     * a string argument will become a subtype of {@code @Tainted} whereas {@code @Untainted}
-     * becomes a subtype of {@code @Untainted} with a string argument. For example,
-     * {@code @Tainted("SQL")} is a subtype of {@code @Tainted} and {@code @Untainted} is a subtype
-     * of {@code @Untainted("SQL")}.
+     * A custom qualifier hierarchy for the Tainting Checker. This makes the {@code @Tainted}
+     * annotation as the top default and the {@code @Untainted} annotation as the bottom annotation.
+     * {@code @Tainted} with a string argument will become a subtype of {@code @Tainted} whereas
+     * {@code @Untainted} becomes a subtype of {@code @Untainted} with a string argument. For
+     * example, {@code @Tainted("SQL")} is a subtype of {@code @Tainted} and {@code @Untainted} is a
+     * subtype of {@code @Untainted("SQL")}.
      */
     protected class TaintingQualifierHierarchy extends GraphQualifierHierarchy {
 
@@ -115,6 +115,27 @@ public class TaintingAnnotatedTypeFactory extends BaseAnnotatedTypeFactory {
             return res;
         }
 
+        /**
+         * Checks whether the sub qualifier is a subtype of the super qualifier according to the
+         * Tainting Subtype rules given below :
+         *
+         * <p>Case 1 : If both {@code subAnno} and {@code superAnno} have the same annotation,
+         * {@code subAnno} is a subtype of {@code superAnno} if its string array argument is either
+         * empty or contains all elements of the string array argument of {@code superAnno}
+         *
+         * <p>Case 2 : If {@code subAnno} is {@code @Tainted} and {@code superAnno} is
+         * {@code @Untainted}, {@code subAnno} will never be a subtype of {@code superAnno}
+         *
+         * <p>Case 3 : If {@code subAnno} is {@code @Untainted} and {@code superAnno} is
+         * {@code @Tainted}, {@code subAnno} will be a subtype of {@code superAnno} if its string
+         * array argument contains all elements of the string array argument of {@code superAnno} or
+         * either of their string arguments are empty
+         *
+         * @param subAnno the sub qualifier
+         * @param superAnno the super qualifier
+         * @return boolean true if the sub qualifier is a subtype of the super qualifier according
+         *     to the rules, false otherwise
+         */
         @Override
         public boolean isSubtype(AnnotationMirror subAnno, AnnotationMirror superAnno) {
             if (AnnotationUtils.areSameByName(subAnno, UNTAINTED)

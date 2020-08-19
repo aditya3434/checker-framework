@@ -24,10 +24,11 @@ import org.checkerframework.framework.qual.TypeUseLocation;
 @DefaultFor(TypeUseLocation.LOWER_BOUND)
 public @interface Untainted {
     /**
-     * Method that gives the data types for which the object is untainted, or in other words, is
-     * safe to use.
+     * Method that returns the string array argument of the {@code @Untainted} annotation. An empty
+     * string array argument signifies the universal set of all strings, which is the default value
+     * in this case.
      *
-     * @return string array that contains the data types for which object is untainted
+     * @return string array argument of the {@code @Untainted} annotation
      */
     String[] value() default "";
 }
