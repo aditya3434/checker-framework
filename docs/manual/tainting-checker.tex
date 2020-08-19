@@ -114,10 +114,8 @@ libraries):
 
 The \code{@Tainted} and \code{@Untainted} annotations have many purposes but are too generalized to be used for
 specialized data types. Hence, for specialized semantics and for annotating for multiple types, we can add
-a string array argument to the annotations, e.g. \code{@Tainted("OS")} and \code{@Untainted({"SQL", "HTML"})}.
-The array arguments describe the types for which the object is either tainted or untainted, which can be then be used
-to ensure safe data usage. For example, to prevent SQL injections attacks, we can make sure that the argument passed
-is \code{@Untainted("SQL").
+a string array argument to the annotations. The array arguments describe the types for which the object is either tainted or untainted, which can be then be used
+to ensure safe data usage.
 
 The tainting checker can also aid the user in securing sensitive data and prevent it from leaking. Providing
 the \code{-Aflow} option will enable the Tainting Checker to check for instances of indirect information flow. Consider

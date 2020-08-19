@@ -3,25 +3,30 @@ import org.checkerframework.checker.tainting.qual.Untainted;
 
 public class IndirectInformationFlow {
 
-    @SuppressWarnings("return.type.incompatible")
     @Untainted int getSecureNumber() {
+        // :: error: (return.type.incompatible)
         return 1234;
+    }
+
+    @Tainted String getTaintedString() {
+        return "Tainted String";
     }
 
     void main() {
 
         int socialSecurityNo = getSecureNumber();
         @Tainted int i = 1234;
-        // Tainted object comparison with untainted object
-        // If -Aflag option is enabled, [condition.flow.unsafe] error would be raised here
+
+        // :: error: (condition.flow.unsafe)
         if (i == socialSecurityNo) {
             System.out.println(i);
         }
 
-        // Method invocation with an untainted object
-        // If -Aflag option is enabled, [method.invocation.flow.unsafe] error would be raised here
         @Untainted String s = "Secure string";
-        if (s.contains("Secure")) {
+        String t = getTaintedString();
+
+        // :: error: (method.invocation.flow.unsafe)
+        if (s.contains(t)) {
             System.out.println(s);
         }
     }

@@ -3,12 +3,11 @@ import org.checkerframework.checker.tainting.qual.Untainted;
 
 public class StringArgumentTest {
 
-    @SuppressWarnings("return.type.incompatible")
     @Untainted("SQL") String verify(@Tainted("SQL") String s) {
+        // :: error: (return.type.incompatible)
         return s;
     }
 
-    @SuppressWarnings("return.type.incompatible")
     @Tainted({"SQL", "OS"}) String getStatement() {
         return "Statement";
     }
