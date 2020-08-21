@@ -12,8 +12,6 @@ import com.sun.source.tree.WhileLoopTree;
 import java.util.List;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.TypeKind;
-import org.checkerframework.checker.tainting.qual.Tainted;
-import org.checkerframework.checker.tainting.qual.Untainted;
 import org.checkerframework.common.basetype.BaseAnnotatedTypeFactory;
 import org.checkerframework.common.basetype.BaseTypeChecker;
 import org.checkerframework.common.basetype.BaseTypeVisitor;
@@ -57,21 +55,14 @@ public class TaintingVisitor extends BaseTypeVisitor<BaseAnnotatedTypeFactory> {
             ExpressionTree object = TreeUtils.getReceiverTree(MethodSelect);
             AnnotatedTypeMirror type = atypeFactory.getAnnotatedType(object);
             List<? extends ExpressionTree> arguments = ((MethodInvocationTree) tree).getArguments();
-            if (type.hasAnnotation(Untainted.class)) {
-                for (ExpressionTree ExpTree : arguments) {
-                    AnnotatedTypeMirror arg = atypeFactory.getAnnotatedType(ExpTree);
-                    if (arg.hasAnnotation(Tainted.class)) {
-                        checker.reportError(tree, "method.invocation.flow.unsafe", ExpTree, arg);
-                        break;
-                    }
-                }
-            } else {
-                for (ExpressionTree ExpTree : arguments) {
-                    AnnotatedTypeMirror arg = atypeFactory.getAnnotatedType(ExpTree);
-                    if (arg.hasAnnotation(Untainted.class)) {
-                        checker.reportError(tree, "method.invocation.flow.unsafe", ExpTree, arg);
-                        break;
-                    }
+            for (ExpressionTree ExpTree : arguments) {
+                AnnotatedTypeMirror arg = atypeFactory.getAnnotatedType(ExpTree);
+                if (!arg.getAnnotations().equals(type.getAnnotations())
+                        && !arg.getAnnotations().isEmpty()
+                        && !type.getAnnotations().isEmpty()) {
+                    checker.reportError(
+                            tree, "method.invocation.flow.unsafe", object, type, ExpTree, arg);
+                    break;
                 }
             }
         }
@@ -81,10 +72,9 @@ public class TaintingVisitor extends BaseTypeVisitor<BaseAnnotatedTypeFactory> {
             AnnotatedTypeMirror rhs =
                     atypeFactory.getAnnotatedType(((BinaryTree) tree).getRightOperand());
 
-            // Indirect infotmation flow will take place when the lhs and rhs have different
+            // Indirect information flow will take place when the lhs and rhs have different
             // annotations
-            // Hence, we use the XOR operator '^' here.
-            if ((lhs.hasAnnotation(Untainted.class) ^ rhs.hasAnnotation(Untainted.class))
+            if (!lhs.getAnnotations().equals(rhs.getAnnotations())
                     && (lhs.getKind() != TypeKind.NULL)
                     && (rhs.getKind() != TypeKind.NULL)) {
                 checker.reportError(tree, "condition.flow.unsafe", lhs, rhs);
