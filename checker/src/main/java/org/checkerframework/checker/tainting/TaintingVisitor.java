@@ -42,12 +42,12 @@ public class TaintingVisitor extends BaseTypeVisitor<BaseAnnotatedTypeFactory> {
     /**
      * Checks if the boolean comparison or method invocation in the condition expression tree
      * involves comparing a {@code @Tainted} object with an {@code @Untainted} one. This check is
-     * done only when the {@code -Aflag} option is enabled.
+     * done only when the {@code -AindirectInfoFlow} option is enabled.
      *
      * @param tree of condition statement that needs to be checked
      */
     private void checkCondition(ExpressionTree tree) {
-        if (!checker.hasOption("flow")) {
+        if (!checker.hasOption("indirectInfoFlow")) {
             return;
         }
         if (tree.getKind().asInterface() == MethodInvocationTree.class) {

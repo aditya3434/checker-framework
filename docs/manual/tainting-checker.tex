@@ -118,7 +118,7 @@ a string array argument to the annotations. The array arguments describe the typ
 to ensure safe data usage.
 
 The tainting checker can also aid the user in securing sensitive data and prevent it from leaking. Providing
-the \code{-Aflow} option will enable the Tainting Checker to check for instances of indirect information flow. Consider
+the \code{-AindirectInfoFlow} option will enable the Tainting Checker to check for instances of indirect information flow. Consider
 the code given below.
 
 \begin{Verbatim}
@@ -138,7 +138,7 @@ the code given below.
 
 One can observe that the secure Social Security Number will be leaked into the unsecure \code{i} variable. This is due
 to the comparison condition in the while loop where a tainted variable is compared with an untainted one. The
-Tainting Checker searches for such comparisons and raises an error when the \code{-Aflow} option is provided.
+Tainting Checker searches for such comparisons and raises an error when the \code{-AindirectInfoFlow} option is provided.
 
 
 \sectionAndLabel{A caution about polymorphism and side effects}{tainting-polymorphism-caution}

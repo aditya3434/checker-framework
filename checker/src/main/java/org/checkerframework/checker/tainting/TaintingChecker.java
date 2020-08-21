@@ -16,7 +16,7 @@ import org.checkerframework.framework.source.SuppressWarningsPrefix;
 @SupportedOptions({
 
     // Checks for instances where indirect information flow can take place
-    "flow",
+    "indirectInfoFlow",
 
     // Tells the qual files of the annotations which the Tainting Checker has to check
     "quals",
