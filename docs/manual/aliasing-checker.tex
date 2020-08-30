@@ -36,7 +36,7 @@ assumptions.
 \label{fig-aliasing-hierarchy}
 \end{figure}
 
-There are two possible types for an expression:
+There are four possible types for an expression:
 
 \begin{description}
 
@@ -48,10 +48,54 @@ This is the default, so every unannotated type is
 \item[\refqualclass{common/aliasing/qual}{Unique}]
 is the type of an expression that has no aliases.
 
+\item[\refqualclass{common/aliasing/qual}{Linear}] is the type of an expression that can only be operated upon once. After this operation, it becomes @Unusable.
+@Linear objects cannot have aliases and can accommodate only one method invocation.
+
+\item[\refqualclass{common/aliasing/qual}{Unusable}] is the type of an expression thatcan not be either assigned, referenced or operated upon again.
+Doing so would invoke the [use.unsafe] error in the compiler. This annotation is, however, hidden and cannot be used by the user explicitly.
+
 The \code{@Unique} annotation is only allowed at local variables, method
 parameters, constructor results, and method returns.
 A constructor's result should be annotated with \code{@Unique} only if the
 constructor's body does not creates an alias to the constructed object.
+
+The \code{@Linear} and \code{@Unusable} annotations implement type-checking for a linear type system.  A
+linear type system prevents re-usability:  there is only one (usable) reference
+to a given object at any time.  Once a reference appears on the right-hand
+side of an assignment in the form of a method invocation, it may not be used any more.  The same rule applies
+for pseudo-assignments such as procedure argument-passing (including as the
+receiver) or return.
+
+One way of thinking about this is that a reference can only be used once,
+after which it is ``used up''.  This property is checked statically at
+compile time.  The single-use property only applies to use in an
+assignment, which makes a new reference to the object; ordinary field
+de-referencing does not use up a reference.
+
+By forbidding re-usability, a linear type system can prevent problems for variables that cannot be used more than once.
+The java.util.Stream library is one example. Streams cannot be operated on more than once, hence, they cause the program
+to fail when they are used more than one time. By annotating these streams as @Linear, these errors can be observed at
+compile time.
+
+Figure~\ref{fig-linear-example} gives an example.
+
+\begin{figure}
+%BEGIN LATEX
+\begin{smaller}
+%END LATEX
+\begin{Verbatim}
+public static void main() {
+    @Linear String a = "hi";
+    String b = a.toUpperCase();   // Since 'a' is operated upon (by method invocation), 'a' has now become @Unusable
+    String c = a.toLowerCase();  // ERROR : 'a' is @Unusable and can no longer be used again
+}
+\end{Verbatim}
+%BEGIN LATEX
+\end{smaller}
+%END LATEX
+\caption{Example of Linear Checker rules.}
+\label{fig-linear-example}
+\end{figure}
 
 \end{description}
 
