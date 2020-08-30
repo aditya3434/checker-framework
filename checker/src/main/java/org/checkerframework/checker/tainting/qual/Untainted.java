@@ -19,7 +19,16 @@ import org.checkerframework.framework.qual.TypeUseLocation;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE_USE, ElementType.TYPE_PARAMETER})
-@SubtypeOf(Tainted.class)
 @QualifierForLiterals(LiteralKind.STRING)
+@SubtypeOf(Tainted.class)
 @DefaultFor(TypeUseLocation.LOWER_BOUND)
-public @interface Untainted {}
+public @interface Untainted {
+    /**
+     * Method that returns the string array argument of the {@code @Untainted} annotation. An empty
+     * string array argument signifies the universal set of all strings, which is the default value
+     * in this case.
+     *
+     * @return string array argument of the {@code @Untainted} annotation
+     */
+    String[] value() default "";
+}

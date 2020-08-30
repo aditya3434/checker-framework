@@ -1,6 +1,7 @@
 package org.checkerframework.checker.tainting;
 
 import org.checkerframework.common.basetype.BaseTypeChecker;
+import org.checkerframework.framework.source.SupportedOptions;
 import org.checkerframework.framework.source.SuppressWarningsPrefix;
 
 /**
@@ -12,4 +13,15 @@ import org.checkerframework.framework.source.SuppressWarningsPrefix;
  * @checker_framework.manual #tainting-checker Tainting Checker
  */
 @SuppressWarningsPrefix({"untainted", "tainting"})
+@SupportedOptions({
+
+    // Checks for instances where indirect information flow can take place
+    "indirectInfoFlow",
+
+    // Tells the qual files of the annotations which the Tainting Checker has to check
+    "quals",
+
+    // Tells the directory path of the annotations which the Tainting Checker has to check
+    "qualDirs"
+})
 public class TaintingChecker extends BaseTypeChecker {}

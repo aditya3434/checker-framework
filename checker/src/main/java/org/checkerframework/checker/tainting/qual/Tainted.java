@@ -23,4 +23,13 @@ import org.checkerframework.framework.qual.SubtypeOf;
 @Target({ElementType.TYPE_USE, ElementType.TYPE_PARAMETER})
 @DefaultQualifierInHierarchy
 @SubtypeOf({})
-public @interface Tainted {}
+public @interface Tainted {
+    /**
+     * Method that returns the string array argument of the {@code @Tainted} annotation. An empty
+     * string array argument signifies the universal set of all strings, which is the default value
+     * in this case.
+     *
+     * @return string array argument of the {@code @Tainted} annotation
+     */
+    String[] value() default "";
+}
